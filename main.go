@@ -7,6 +7,7 @@ import (
 
 	"github.com/marceloagmelo/backup-openshift/utils"
 	"github.com/marceloagmelo/backup-openshift/variaveis"
+	gitutils "github.com/marceloagmelo/go-git-cli/utils"
 	openshiftutils "github.com/marceloagmelo/go-openshift-cli/utils"
 )
 
@@ -18,6 +19,7 @@ func init() {
 func main() {
 	url := openshiftutils.URLGen(variaveis.Ambiente)
 	token := openshiftutils.GetToken(url)
+	gitRepositorio := os.Getenv("GIT_REPOSITORIO")
 
 	// Atribuir valores as variáveis
 	dataFormatada := variaveis.DataHoraAtual.Format(variaveis.DataFormatArquivo)
@@ -27,7 +29,7 @@ func main() {
 	os.Mkdir(variaveis.DirBase, 0700)
 
 	// Clonar o respositório de backup
-	utils.GitClone(variaveis.GitRepositorio, variaveis.DirBase)
+	gitutils.GitClone(gitRepositorio, variaveis.DirBase)
 
 	// Recuperar os Services
 	utils.ListarServices(token, url)
@@ -51,13 +53,14 @@ func main() {
 	utils.ListarStateFulSets(token, url)
 
 	// Commit e push no git
-	utils.GitCommitPush(variaveis.DirBase, dataFormatada)
+	gitutils.GitCommitPush(variaveis.DirBase, "Backup-"+dataFormatada)
 
 	// Criar branch no git
-	utils.GitCriarBranch(variaveis.DirBase, dataFormatada)
+	gitutils.GitCriarBranch(variaveis.DirBase, "Backup-"+dataFormatada)
 
 	// Remover o diretório base
-	os.Remove(variaveis.DirBase)
+	fmt.Printf("removendo diretorio %s\n\r", variaveis.DirBase)
+	os.RemoveAll(variaveis.DirBase)
 
 	variaveis.DataHoraAtual = time.Now()
 	fmt.Println("Fim -->> ", variaveis.DataHoraAtual.Format(variaveis.DataFormat))
