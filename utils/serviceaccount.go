@@ -46,7 +46,7 @@ func lerSalvarServiceAccount(token string, nomeProjeto string, nomeServiceAccoun
 
 	resultado, serviceaccount := utils.GetServiceAccountString(token, url, nomeProjeto, nomeServiceAccount)
 	if resultado == 0 {
-		// Salvar o arquivo de DC
+		// Salvar o arquivo
 		arquivo := dirServiceAccount + "/" + nomeServiceAccount + ".json"
 		resultado = SalvarArquivoJSON(arquivo, serviceaccount)
 		if resultado == 0 {

@@ -46,7 +46,7 @@ func lerSalvarConfigMap(token string, nomeProjeto string, nomeConfigMap string) 
 
 	resultado, configmap := utils.GetConfigMapString(token, url, nomeProjeto, nomeConfigMap)
 	if resultado == 0 {
-		// Salvar o arquivo de DC
+		// Salvar o arquivo
 		arquivo := dirConfigMap + "/" + nomeConfigMap + ".json"
 		resultado = SalvarArquivoJSON(arquivo, configmap)
 		if resultado == 0 {

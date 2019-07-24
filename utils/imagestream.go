@@ -46,7 +46,7 @@ func lerSalvarImageStream(token string, nomeProjeto string, nomeImageStream stri
 
 	resultado, ImageStream := utils.GetImageStreamString(token, url, nomeProjeto, nomeImageStream)
 	if resultado == 0 {
-		// Salvar o arquivo de DC
+		// Salvar o arquivo
 		arquivo := dirImageStream + "/" + nomeImageStream + ".json"
 		resultado = SalvarArquivoJSON(arquivo, ImageStream)
 		if resultado == 0 {

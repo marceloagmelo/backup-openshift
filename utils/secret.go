@@ -46,7 +46,7 @@ func lerSalvarSecret(token string, nomeProjeto string, nomeSecret string) (recur
 
 	resultado, secret := utils.GetSecretString(token, url, nomeProjeto, nomeSecret)
 	if resultado == 0 {
-		// Salvar o arquivo de secret
+		// Salvar o arquivo
 		arquivo := dirSecret + "/" + nomeSecret + ".json"
 		resultado = SalvarArquivoJSON(arquivo, secret)
 		if resultado == 0 {

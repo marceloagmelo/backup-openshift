@@ -46,7 +46,7 @@ func lerSalvarPvc(token string, nomeProjeto string, nomePvc string) (recursoSalv
 
 	resultado, pvc := utils.GetPvcString(token, url, nomeProjeto, nomePvc)
 	if resultado == 0 {
-		// Salvar o arquivo de DC
+		// Salvar o arquivo
 		arquivo := dirPvc + "/" + nomePvc + ".json"
 		resultado = SalvarArquivoJSON(arquivo, pvc)
 		if resultado == 0 {

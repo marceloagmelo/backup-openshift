@@ -46,7 +46,7 @@ func lerSalvarRoute(token string, nomeProjeto string, nomeRoute string) (recurso
 
 	resultado, route := utils.GetRouteString(token, url, nomeProjeto, nomeRoute)
 	if resultado == 0 {
-		// Salvar o arquivo de Route
+		// Salvar o arquivo
 		arquivo := dirRoute + "/" + nomeRoute + ".json"
 		resultado = SalvarArquivoJSON(arquivo, route)
 		if resultado == 0 {

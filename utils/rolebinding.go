@@ -46,7 +46,7 @@ func lerSalvarRoleBinding(token string, nomeProjeto string, nomeRoleBinding stri
 
 	resultado, rolebinding := utils.GetRoleBindingString(token, url, nomeProjeto, nomeRoleBinding)
 	if resultado == 0 {
-		// Salvar o arquivo de DC
+		// Salvar o arquivo
 		arquivo := dirRoleBinding + "/" + nomeRoleBinding + ".json"
 		resultado = SalvarArquivoJSON(arquivo, rolebinding)
 		if resultado == 0 {

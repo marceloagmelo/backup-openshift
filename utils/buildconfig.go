@@ -45,7 +45,7 @@ func lerSalvarBc(token string, nomeProjeto string, nomeBc string) (recursoSalvo 
 
 	resultado, bc := utils.GetBuildConfigString(token, url, nomeProjeto, nomeBc)
 	if resultado == 0 {
-		// Salvar o arquivo de BC
+		// Salvar o arquivo
 		arquivo := dirBc + "/" + nomeBc + ".json"
 		resultado = SalvarArquivoJSON(arquivo, bc)
 		if resultado == 0 {

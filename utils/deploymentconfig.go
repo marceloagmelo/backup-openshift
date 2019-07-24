@@ -46,7 +46,7 @@ func lerSalvarDc(token string, nomeProjeto string, nomeDc string) (recursoSalvo 
 
 	resultado, dc := utils.GetDeploymentConfigString(token, url, nomeProjeto, nomeDc)
 	if resultado == 0 {
-		// Salvar o arquivo de DC
+		// Salvar o arquivo
 		arquivo := dirDc + "/" + nomeDc + ".json"
 		resultado = SalvarArquivoJSON(arquivo, dc)
 		if resultado == 0 {

@@ -46,7 +46,7 @@ func lerSalvarStateFulSet(token string, nomeProjeto string, nomeStateFulSet stri
 
 	resultado, statefulset := utils.GetStateFulSetString(token, url, nomeProjeto, nomeStateFulSet)
 	if resultado == 0 {
-		// Salvar o arquivo de DC
+		// Salvar o arquivo
 		arquivo := dirStateFulSet + "/" + nomeStateFulSet + ".json"
 		resultado = SalvarArquivoJSON(arquivo, statefulset)
 		if resultado == 0 {

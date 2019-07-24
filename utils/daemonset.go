@@ -46,7 +46,7 @@ func lerSalvarDaemonSet(token string, nomeProjeto string, nomeDaemonSet string) 
 
 	resultado, daemonset := utils.GetDaemonSetString(token, url, nomeProjeto, nomeDaemonSet)
 	if resultado == 0 {
-		// Salvar o arquivo de DC
+		// Salvar o arquivo
 		arquivo := dirDaemonSet + "/" + nomeDaemonSet + ".json"
 		resultado = SalvarArquivoJSON(arquivo, daemonset)
 		if resultado == 0 {
