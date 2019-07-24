@@ -9,31 +9,34 @@ import (
 	"github.com/marceloagmelo/go-openshift-cli/utils"
 )
 
-//ListarServices lista dos services do openshift
-func ListarServices(token string, url string) {
+//BackupServices lista dos services do openshift
+func BackupServices(token string, url string) {
 	// Listar os services
-	fmt.Printf("Listando todos os services do ambiente %s\n\r", url)
+	fmt.Printf("Backup dos recursos services do ambiente %s\n\r", url)
 	resultado, services := utils.ListService(token, url)
 	if resultado == 0 {
 
 		// Ler os dados dos services
-		lerDadosDadosServices(token, services)
+		lerDadosServices(token, services)
 	} else {
 		fmt.Println("[ListarServices] Services não encontrados")
 	}
 }
 
-func lerDadosDadosServices(token string, services model.Services) {
+func lerDadosServices(token string, services model.Services) {
+	quantidadeRecursoSalvo := 0
 	for i := 0; i < len(services.Items); i++ {
 		nomeProjeto := services.Items[i].Metadata.Namespace
 		nomeService := services.Items[i].Metadata.Name
 
-		lerService(token, nomeProjeto, nomeService)
+		quantidadeRecursoSalvo = quantidadeRecursoSalvo + lerSalvarService(token, nomeProjeto, nomeService)
 	}
+	fmt.Printf("Quantidade dos recursos salvos = %d\n\r", quantidadeRecursoSalvo)
 }
 
-func lerService(token string, nomeProjeto string, nomeService string) {
-	url := utils.URLGen(variaveis.Ambiente)
+func lerSalvarService(token string, nomeProjeto string, nomeService string) (recursoSalvo int) {
+	recursoSalvo = 0
+	url := os.Getenv("OPENSHIFT_URL")
 	dirProjeto := variaveis.DirBase + "/" + nomeProjeto
 	dirService := dirProjeto + "/service"
 
@@ -45,8 +48,12 @@ func lerService(token string, nomeProjeto string, nomeService string) {
 	if resultado == 0 {
 		// Salvar o arquivo de DC
 		arquivo := dirService + "/" + nomeService + ".json"
-		SalvarArquivoJSON(arquivo, service)
+		resultado = SalvarArquivoJSON(arquivo, service)
+		if resultado == 0 {
+			recursoSalvo = 1
+		}
 	} else {
 		fmt.Printf("[lerService] Service %s não encontrado no projeto %s ambiente %s\n\r", nomeService, nomeProjeto, url)
 	}
+	return recursoSalvo
 }

@@ -9,31 +9,34 @@ import (
 	"github.com/marceloagmelo/go-openshift-cli/utils"
 )
 
-//ListarRoutes lista dos routes do openshift
-func ListarRoutes(token string, url string) {
+//BackupRoutes lista dos routes do openshift
+func BackupRoutes(token string, url string) {
 	// Listar os routes
-	fmt.Printf("Listando todos os routes do ambiente %s\n\r", url)
+	fmt.Printf("Backup dos recursos routes do ambiente %s\n\r", url)
 	resultado, routes := utils.ListRoute(token, url)
 	if resultado == 0 {
 
 		// Ler os dados dos routes
-		lerDadosDadosRoutes(token, routes)
+		lerDadosRoutes(token, routes)
 	} else {
 		fmt.Println("[ListarRoutes] Routes não encontrados")
 	}
 }
 
-func lerDadosDadosRoutes(token string, routes model.Routes) {
+func lerDadosRoutes(token string, routes model.Routes) {
+	quantidadeRecursoSalvo := 0
 	for i := 0; i < len(routes.Items); i++ {
 		nomeProjeto := routes.Items[i].Metadata.Namespace
 		nomeRoute := routes.Items[i].Metadata.Name
 
-		lerRoute(token, nomeProjeto, nomeRoute)
+		quantidadeRecursoSalvo = quantidadeRecursoSalvo + lerSalvarRoute(token, nomeProjeto, nomeRoute)
 	}
+	fmt.Printf("Quantidade dos recursos salvos = %d\n\r", quantidadeRecursoSalvo)
 }
 
-func lerRoute(token string, nomeProjeto string, nomeRoute string) {
-	url := utils.URLGen(variaveis.Ambiente)
+func lerSalvarRoute(token string, nomeProjeto string, nomeRoute string) (recursoSalvo int) {
+	recursoSalvo = 0
+	url := os.Getenv("OPENSHIFT_URL")
 	dirProjeto := variaveis.DirBase + "/" + nomeProjeto
 	dirRoute := dirProjeto + "/route"
 
@@ -45,8 +48,12 @@ func lerRoute(token string, nomeProjeto string, nomeRoute string) {
 	if resultado == 0 {
 		// Salvar o arquivo de Route
 		arquivo := dirRoute + "/" + nomeRoute + ".json"
-		SalvarArquivoJSON(arquivo, route)
+		resultado = SalvarArquivoJSON(arquivo, route)
+		if resultado == 0 {
+			recursoSalvo = 1
+		}
 	} else {
 		fmt.Printf("[lerRoute] route %s não encontrado no projeto %s ambiente %s\n\r", nomeRoute, nomeProjeto, url)
 	}
+	return recursoSalvo
 }

@@ -9,31 +9,34 @@ import (
 	"github.com/marceloagmelo/go-openshift-cli/utils"
 )
 
-//ListarStateFulSets lista dos statefulsets do openshift
-func ListarStateFulSets(token string, url string) {
+//BackupStateFulSets lista dos statefulsets do openshift
+func BackupStateFulSets(token string, url string) {
 	// Listar os statefulsets
-	fmt.Printf("Listando todos os statefulsets do ambiente %s\n\r", url)
+	fmt.Printf("Backup dos recursos statefulsets do ambiente %s\n\r", url)
 	resultado, statefulsets := utils.ListStateFulSet(token, url)
 	if resultado == 0 {
 
 		// Ler os dados dos statefulsets
-		lerDadosDadosStateFulSets(token, statefulsets)
+		lerDadosStateFulSets(token, statefulsets)
 	} else {
 		fmt.Println("[ListarStateFulSet] StateFulSet não encontrados")
 	}
 }
 
-func lerDadosDadosStateFulSets(token string, statefulsets model.StateFulSets) {
+func lerDadosStateFulSets(token string, statefulsets model.StateFulSets) {
+	quantidadeRecursoSalvo := 0
 	for i := 0; i < len(statefulsets.Items); i++ {
 		nomeProjeto := statefulsets.Items[i].Metadata.Namespace
 		nomeStateFulSet := statefulsets.Items[i].Metadata.Name
 
-		lerStateFulSet(token, nomeProjeto, nomeStateFulSet)
+		quantidadeRecursoSalvo = quantidadeRecursoSalvo + lerSalvarStateFulSet(token, nomeProjeto, nomeStateFulSet)
 	}
+	fmt.Printf("Quantidade dos recursos salvos = %d\n\r", quantidadeRecursoSalvo)
 }
 
-func lerStateFulSet(token string, nomeProjeto string, nomeStateFulSet string) {
-	url := utils.URLGen(variaveis.Ambiente)
+func lerSalvarStateFulSet(token string, nomeProjeto string, nomeStateFulSet string) (recursoSalvo int) {
+	recursoSalvo = 0
+	url := os.Getenv("OPENSHIFT_URL")
 	dirProjeto := variaveis.DirBase + "/" + nomeProjeto
 	dirStateFulSet := dirProjeto + "/statefulset"
 
@@ -45,8 +48,12 @@ func lerStateFulSet(token string, nomeProjeto string, nomeStateFulSet string) {
 	if resultado == 0 {
 		// Salvar o arquivo de DC
 		arquivo := dirStateFulSet + "/" + nomeStateFulSet + ".json"
-		SalvarArquivoJSON(arquivo, statefulset)
+		resultado = SalvarArquivoJSON(arquivo, statefulset)
+		if resultado == 0 {
+			recursoSalvo = 1
+		}
 	} else {
 		fmt.Printf("[lerStateFulSet] StateFulSet %s não encontrado no projeto %s ambiente %s\n\r", nomeStateFulSet, nomeProjeto, url)
 	}
+	return recursoSalvo
 }

@@ -9,44 +9,51 @@ import (
 	"github.com/marceloagmelo/go-openshift-cli/utils"
 )
 
-//ListarDcs lista dos dcs do openshift
-func ListarDcs(token string, url string) {
+//BackupDcs lista dos dcs do openshift
+func BackupDcs(token string, url string) {
 	// Listar os dcs
-	fmt.Printf("Listando todos os dcs do ambiente %s\n\r", url)
-	resultado, dcs := utils.ListDc(token, url)
+	fmt.Printf("Backup dos recursos deploymentconfig do ambiente %s\n\r", url)
+	resultado, dcs := utils.ListDeploymentConfig(token, url)
 	if resultado == 0 {
 
 		// Ler os dados dos dcs
-		lerDadosDadosDcs(token, dcs)
+		lerDadosDcs(token, dcs)
 	} else {
 		fmt.Println("[main] Dcs não encontrados")
 	}
 }
 
-func lerDadosDadosDcs(token string, dcs model.Dcs) {
+func lerDadosDcs(token string, dcs model.DeploymentConfigs) {
+	quantidadeRecursoSalvo := 0
 	for i := 0; i < len(dcs.Items); i++ {
 		nomeProjeto := dcs.Items[i].Metadata.Namespace
 		nomeDc := dcs.Items[i].Metadata.Name
 
-		lerDc(token, nomeProjeto, nomeDc)
+		quantidadeRecursoSalvo = quantidadeRecursoSalvo + lerSalvarDc(token, nomeProjeto, nomeDc)
 	}
+	fmt.Printf("Quantidade dos recursos salvos = %d\n\r", quantidadeRecursoSalvo)
 }
 
-func lerDc(token string, nomeProjeto string, nomeDc string) {
-	url := utils.URLGen(variaveis.Ambiente)
+func lerSalvarDc(token string, nomeProjeto string, nomeDc string) (recursoSalvo int) {
+	recursoSalvo = 0
+	url := os.Getenv("OPENSHIFT_URL")
 	dirProjeto := variaveis.DirBase + "/" + nomeProjeto
-	dirDc := dirProjeto + "/dc"
+	dirDc := dirProjeto + "/deploymentconfig"
 
 	// Criar diretórios
 	os.Mkdir(dirProjeto, 0700)
 	os.Mkdir(dirDc, 0700)
 
-	resultado, dc := utils.GetDcString(token, url, nomeProjeto, nomeDc)
+	resultado, dc := utils.GetDeploymentConfigString(token, url, nomeProjeto, nomeDc)
 	if resultado == 0 {
 		// Salvar o arquivo de DC
 		arquivo := dirDc + "/" + nomeDc + ".json"
-		SalvarArquivoJSON(arquivo, dc)
+		resultado = SalvarArquivoJSON(arquivo, dc)
+		if resultado == 0 {
+			recursoSalvo = 1
+		}
 	} else {
 		fmt.Printf("[lerDc] Dc %s não encontrado no projeto %s ambiente %s", nomeDc, nomeProjeto, url)
 	}
+	return recursoSalvo
 }

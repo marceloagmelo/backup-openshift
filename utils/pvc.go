@@ -9,31 +9,34 @@ import (
 	"github.com/marceloagmelo/go-openshift-cli/utils"
 )
 
-//ListarPvcs lista dos pvcs do openshift
-func ListarPvcs(token string, url string) {
+//BackupPvcs lista dos pvcs do openshift
+func BackupPvcs(token string, url string) {
 	// Listar os pvcs
-	fmt.Printf("Listando todos os pvcs do ambiente %s\n\r", url)
+	fmt.Printf("Backup dos recursos pvcs do ambiente %s\n\r", url)
 	resultado, pvcs := utils.ListPvc(token, url)
 	if resultado == 0 {
 
 		// Ler os dados dos pvcs
-		lerDadosDadosPvcs(token, pvcs)
+		lerDadosPvcs(token, pvcs)
 	} else {
 		fmt.Println("[ListarPvcs] Pvcs não encontrados")
 	}
 }
 
-func lerDadosDadosPvcs(token string, pvcs model.Pvcs) {
+func lerDadosPvcs(token string, pvcs model.Pvcs) {
+	quantidadeRecursoSalvo := 0
 	for i := 0; i < len(pvcs.Items); i++ {
 		nomeProjeto := pvcs.Items[i].Metadata.Namespace
 		nomePvc := pvcs.Items[i].Metadata.Name
 
-		lerPvc(token, nomeProjeto, nomePvc)
+		quantidadeRecursoSalvo = quantidadeRecursoSalvo + lerSalvarPvc(token, nomeProjeto, nomePvc)
 	}
+	fmt.Printf("Quantidade dos recursos salvos = %d\n\r", quantidadeRecursoSalvo)
 }
 
-func lerPvc(token string, nomeProjeto string, nomePvc string) {
-	url := utils.URLGen(variaveis.Ambiente)
+func lerSalvarPvc(token string, nomeProjeto string, nomePvc string) (recursoSalvo int) {
+	recursoSalvo = 0
+	url := os.Getenv("OPENSHIFT_URL")
 	dirProjeto := variaveis.DirBase + "/" + nomeProjeto
 	dirPvc := dirProjeto + "/pvc"
 
@@ -45,8 +48,12 @@ func lerPvc(token string, nomeProjeto string, nomePvc string) {
 	if resultado == 0 {
 		// Salvar o arquivo de DC
 		arquivo := dirPvc + "/" + nomePvc + ".json"
-		SalvarArquivoJSON(arquivo, pvc)
+		resultado = SalvarArquivoJSON(arquivo, pvc)
+		if resultado == 0 {
+			recursoSalvo = 1
+		}
 	} else {
 		fmt.Printf("[lerPvc] Pvc %s não encontrado no projeto %s ambiente %s\n\r", nomePvc, nomeProjeto, url)
 	}
+	return recursoSalvo
 }

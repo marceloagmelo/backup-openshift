@@ -17,13 +17,16 @@ func init() {
 }
 
 func main() {
-	url := openshiftutils.URLGen(variaveis.Ambiente)
-	token := openshiftutils.GetToken(url)
+	url := os.Getenv("OPENSHIFT_URL")
+	username := os.Getenv("OPENSHIFT_USERNAME")
+	password := os.Getenv("OPENSHIFT_PASSWORD")
+
+	token := openshiftutils.GetToken(url, username, password)
 	gitRepositorio := os.Getenv("GIT_REPOSITORIO")
 
 	// Atribuir valores as variáveis
 	dataFormatada := variaveis.DataHoraAtual.Format(variaveis.DataFormatArquivo)
-	variaveis.DirBase = "/tmp/backup-" + variaveis.Ambiente + "-" + dataFormatada
+	variaveis.DirBase = "/tmp/backup-openshift-" + dataFormatada
 
 	// Criar diretórios
 	os.Mkdir(variaveis.DirBase, 0700)
@@ -31,32 +34,47 @@ func main() {
 	// Clonar o respositório de backup
 	gitutils.GitClone(gitRepositorio, variaveis.DirBase)
 
+	// Recuperar os RoleBindings
+	utils.BackupRoleBindings(token, url)
+
 	// Recuperar os Services
-	utils.ListarServices(token, url)
+	utils.BackupServices(token, url)
+
+	// Recuperar os ServiceAccounts
+	utils.BackupServiceAccounts(token, url)
 
 	// Recuperar os Routes
-	utils.ListarRoutes(token, url)
+	utils.BackupRoutes(token, url)
 
 	// Recuperar os Secrets
-	utils.ListarSecrets(token, url)
+	utils.BackupSecrets(token, url)
 
 	// Recuperar os Pvcs
-	utils.ListarPvcs(token, url)
+	utils.BackupPvcs(token, url)
 
 	// Recuperar os ConfigMaps
-	utils.ListarConfigMaps(token, url)
+	utils.BackupConfigMaps(token, url)
+
+	// Recuperar as ImagesStreams
+	utils.BackupImageStreams(token, url)
+
+	// Recuperar os Bcs
+	utils.BackupBcs(token, url)
 
 	// Recuperar os Dcs
-	utils.ListarDcs(token, url)
+	utils.BackupDcs(token, url)
 
 	// Recuperar os StateFulSets
-	utils.ListarStateFulSets(token, url)
+	utils.BackupStateFulSets(token, url)
+
+	// Recuperar os DaemonSets
+	utils.BackupDaemonSets(token, url)
 
 	// Commit e push no git
-	gitutils.GitCommitPush(variaveis.DirBase, "Backup-"+dataFormatada)
+	//gitutils.GitCommitPush(variaveis.DirBase, "Backup-"+dataFormatada)
 
 	// Criar branch no git
-	gitutils.GitCriarBranch(variaveis.DirBase, "Backup-"+dataFormatada)
+	//gitutils.GitCriarBranch(variaveis.DirBase, "Backup-"+dataFormatada)
 
 	// Remover o diretório base
 	fmt.Printf("removendo diretorio %s\n\r", variaveis.DirBase)

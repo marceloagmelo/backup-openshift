@@ -9,31 +9,34 @@ import (
 	"github.com/marceloagmelo/go-openshift-cli/utils"
 )
 
-//ListarSecrets lista dos dcs do openshift
-func ListarSecrets(token string, url string) {
+//BackupSecrets lista dos dcs do openshift
+func BackupSecrets(token string, url string) {
 	// Listar os secrets
-	fmt.Printf("Listando todos as secrets do ambiente %s\n\r", url)
+	fmt.Printf("Backup dos recursos secrets do ambiente %s\n\r", url)
 	resultado, secrets := utils.ListSecret(token, url)
 	if resultado == 0 {
 
 		// Ler os dados dos secrets
-		lerDadosDadosSecrets(token, secrets)
+		lerDadosSecrets(token, secrets)
 	} else {
 		fmt.Println("[ListarSecrets] Secrets não encontrados")
 	}
 }
 
-func lerDadosDadosSecrets(token string, secrets model.Secrets) {
+func lerDadosSecrets(token string, secrets model.Secrets) {
+	quantidadeRecursoSalvo := 0
 	for i := 0; i < len(secrets.Items); i++ {
 		nomeProjeto := secrets.Items[i].Metadata.Namespace
 		nomeSecret := secrets.Items[i].Metadata.Name
 
-		lerSecret(token, nomeProjeto, nomeSecret)
+		quantidadeRecursoSalvo = quantidadeRecursoSalvo + lerSalvarSecret(token, nomeProjeto, nomeSecret)
 	}
+	fmt.Printf("Quantidade dos recursos salvos = %d\n\r", quantidadeRecursoSalvo)
 }
 
-func lerSecret(token string, nomeProjeto string, nomeSecret string) {
-	url := utils.URLGen(variaveis.Ambiente)
+func lerSalvarSecret(token string, nomeProjeto string, nomeSecret string) (recursoSalvo int) {
+	recursoSalvo = 0
+	url := os.Getenv("OPENSHIFT_URL")
 	dirProjeto := variaveis.DirBase + "/" + nomeProjeto
 	dirSecret := dirProjeto + "/secret"
 
@@ -45,8 +48,12 @@ func lerSecret(token string, nomeProjeto string, nomeSecret string) {
 	if resultado == 0 {
 		// Salvar o arquivo de secret
 		arquivo := dirSecret + "/" + nomeSecret + ".json"
-		SalvarArquivoJSON(arquivo, secret)
+		resultado = SalvarArquivoJSON(arquivo, secret)
+		if resultado == 0 {
+			recursoSalvo = 1
+		}
 	} else {
 		fmt.Printf("[lerSecret] secret %s não encontrada no projeto %s ambiente %s\n\r", nomeSecret, nomeProjeto, url)
 	}
+	return recursoSalvo
 }

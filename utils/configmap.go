@@ -9,31 +9,34 @@ import (
 	"github.com/marceloagmelo/go-openshift-cli/utils"
 )
 
-//ListarConfigMaps lista dos configmaps do openshift
-func ListarConfigMaps(token string, url string) {
+//BackupConfigMaps lista dos configmaps do openshift
+func BackupConfigMaps(token string, url string) {
 	// Listar os configmaps
-	fmt.Printf("Listando todos os configmaps do ambiente %s\n\r", url)
+	fmt.Printf("Backup dos recursos configmap do ambiente %s\n\r", url)
 	resultado, configmaps := utils.ListConfigMap(token, url)
 	if resultado == 0 {
 
 		// Ler os dados dos configmaps
-		lerDadosDadosConfigMaps(token, configmaps)
+		lerDadosConfigMaps(token, configmaps)
 	} else {
 		fmt.Println("[ListarConfigMap] ConfigMap não encontrados")
 	}
 }
 
-func lerDadosDadosConfigMaps(token string, configmaps model.ConfigMaps) {
+func lerDadosConfigMaps(token string, configmaps model.ConfigMaps) {
+	quantidadeRecursoSalvo := 0
 	for i := 0; i < len(configmaps.Items); i++ {
 		nomeProjeto := configmaps.Items[i].Metadata.Namespace
 		nomeConfigMap := configmaps.Items[i].Metadata.Name
 
-		lerConfigMap(token, nomeProjeto, nomeConfigMap)
+		quantidadeRecursoSalvo = quantidadeRecursoSalvo + lerSalvarConfigMap(token, nomeProjeto, nomeConfigMap)
 	}
+	fmt.Printf("Quantidade dos recursos salvos = %d\n\r", quantidadeRecursoSalvo)
 }
 
-func lerConfigMap(token string, nomeProjeto string, nomeConfigMap string) {
-	url := utils.URLGen(variaveis.Ambiente)
+func lerSalvarConfigMap(token string, nomeProjeto string, nomeConfigMap string) (recursoSalvo int) {
+	recursoSalvo = 0
+	url := os.Getenv("OPENSHIFT_URL")
 	dirProjeto := variaveis.DirBase + "/" + nomeProjeto
 	dirConfigMap := dirProjeto + "/configmap"
 
@@ -45,8 +48,12 @@ func lerConfigMap(token string, nomeProjeto string, nomeConfigMap string) {
 	if resultado == 0 {
 		// Salvar o arquivo de DC
 		arquivo := dirConfigMap + "/" + nomeConfigMap + ".json"
-		SalvarArquivoJSON(arquivo, configmap)
+		resultado = SalvarArquivoJSON(arquivo, configmap)
+		if resultado == 0 {
+			recursoSalvo = 1
+		}
 	} else {
 		fmt.Printf("[lerConfigMap] ConfigMap %s não encontrado no projeto %s ambiente %s\n\r", nomeConfigMap, nomeProjeto, url)
 	}
+	return recursoSalvo
 }
