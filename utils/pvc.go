@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/marceloagmelo/backup-openshift/variaveis"
-	"github.com/marceloagmelo/go-openshift-cli/model"
-	"github.com/marceloagmelo/go-openshift-cli/utils"
+	"gitlab.produbanbr.corp/paas-brasil/go-backup-openshift/variaveis"
+	"gitlab.produbanbr.corp/paas-brasil/go-openshift-cli/model"
+	"gitlab.produbanbr.corp/paas-brasil/go-openshift-cli/utils"
 )
 
 //BackupPvcs lista dos pvcs do openshift
@@ -19,7 +19,7 @@ func BackupPvcs(token string, url string) {
 		// Ler os dados dos pvcs
 		lerDadosPvcs(token, pvcs)
 	} else {
-		fmt.Println("[ListarPvcs] Pvcs não encontrados")
+		fmt.Println("[BackupPvcs] Pvcs não encontrados")
 	}
 }
 
@@ -53,7 +53,7 @@ func lerSalvarPvc(token string, nomeProjeto string, nomePvc string) (recursoSalv
 			recursoSalvo = 1
 		}
 	} else {
-		fmt.Printf("[lerPvc] Pvc %s não encontrado no projeto %s ambiente %s\n\r", nomePvc, nomeProjeto, url)
+		fmt.Printf("[lerSalvarPvc] Pvc %s não encontrado no projeto %s ambiente %s\n\r", nomePvc, nomeProjeto, url)
 	}
 	return recursoSalvo
 }

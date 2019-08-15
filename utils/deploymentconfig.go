@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/marceloagmelo/backup-openshift/variaveis"
-	"github.com/marceloagmelo/go-openshift-cli/model"
-	"github.com/marceloagmelo/go-openshift-cli/utils"
+	"gitlab.produbanbr.corp/paas-brasil/go-backup-openshift/variaveis"
+	"gitlab.produbanbr.corp/paas-brasil/go-openshift-cli/model"
+	"gitlab.produbanbr.corp/paas-brasil/go-openshift-cli/utils"
 )
 
 //BackupDcs lista dos dcs do openshift
@@ -19,7 +19,7 @@ func BackupDcs(token string, url string) {
 		// Ler os dados dos dcs
 		lerDadosDcs(token, dcs)
 	} else {
-		fmt.Println("[main] Dcs não encontrados")
+		fmt.Println("[BackupDcs] Dcs não encontrados")
 	}
 }
 
@@ -53,7 +53,7 @@ func lerSalvarDc(token string, nomeProjeto string, nomeDc string) (recursoSalvo 
 			recursoSalvo = 1
 		}
 	} else {
-		fmt.Printf("[lerDc] Dc %s não encontrado no projeto %s ambiente %s", nomeDc, nomeProjeto, url)
+		fmt.Printf("[lerSalvarDc] Dc %s não encontrado no projeto %s ambiente %s", nomeDc, nomeProjeto, url)
 	}
 	return recursoSalvo
 }

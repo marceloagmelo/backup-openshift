@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/marceloagmelo/backup-openshift/variaveis"
-	"github.com/marceloagmelo/go-openshift-cli/model"
-	"github.com/marceloagmelo/go-openshift-cli/utils"
+	"gitlab.produbanbr.corp/paas-brasil/go-backup-openshift/variaveis"
+	"gitlab.produbanbr.corp/paas-brasil/go-openshift-cli/model"
+	"gitlab.produbanbr.corp/paas-brasil/go-openshift-cli/utils"
 )
 
 //BackupDaemonSets lista dos daemonsets do openshift
@@ -19,7 +19,7 @@ func BackupDaemonSets(token string, url string) {
 		// Ler os dados dos daemonsets
 		lerDadosDaemonSets(token, daemonsets)
 	} else {
-		fmt.Println("[ListarDaemonSet] DaemonSet não encontrados")
+		fmt.Println("[BackupDaemonSets] DaemonSet não encontrados")
 	}
 }
 
@@ -53,7 +53,7 @@ func lerSalvarDaemonSet(token string, nomeProjeto string, nomeDaemonSet string) 
 			recursoSalvo = 1
 		}
 	} else {
-		fmt.Printf("[lerDaemonSet] DaemonSet %s não encontrado no projeto %s ambiente %s\n\r", nomeDaemonSet, nomeProjeto, url)
+		fmt.Printf("[lerSalvarDaemonSet] DaemonSet %s não encontrado no projeto %s ambiente %s\n\r", nomeDaemonSet, nomeProjeto, url)
 	}
 	return recursoSalvo
 }

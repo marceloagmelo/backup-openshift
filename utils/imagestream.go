@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/marceloagmelo/backup-openshift/variaveis"
-	"github.com/marceloagmelo/go-openshift-cli/model"
-	"github.com/marceloagmelo/go-openshift-cli/utils"
+	"gitlab.produbanbr.corp/paas-brasil/go-backup-openshift/variaveis"
+	"gitlab.produbanbr.corp/paas-brasil/go-openshift-cli/model"
+	"gitlab.produbanbr.corp/paas-brasil/go-openshift-cli/utils"
 )
 
 //BackupImageStreams lista dos ImageStreams do openshift
@@ -19,7 +19,7 @@ func BackupImageStreams(token string, url string) {
 		// Ler os dados dos ImageStreams
 		lerDadosImageStreams(token, ImageStreams)
 	} else {
-		fmt.Println("[ListarImageStream] ImageStream não encontradas")
+		fmt.Println("[BackupImageStreams] ImageStream não encontradas")
 	}
 }
 
@@ -53,7 +53,7 @@ func lerSalvarImageStream(token string, nomeProjeto string, nomeImageStream stri
 			recursoSalvo = 1
 		}
 	} else {
-		fmt.Printf("[lerImageStream] ImageStream %s não encontrada no projeto %s ambiente %s\n\r", nomeImageStream, nomeProjeto, url)
+		fmt.Printf("[lerSalvarImageStream] ImageStream %s não encontrada no projeto %s ambiente %s\n\r", nomeImageStream, nomeProjeto, url)
 	}
 	return recursoSalvo
 }

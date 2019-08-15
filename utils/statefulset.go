@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/marceloagmelo/backup-openshift/variaveis"
-	"github.com/marceloagmelo/go-openshift-cli/model"
-	"github.com/marceloagmelo/go-openshift-cli/utils"
+	"gitlab.produbanbr.corp/paas-brasil/go-backup-openshift/variaveis"
+	"gitlab.produbanbr.corp/paas-brasil/go-openshift-cli/model"
+	"gitlab.produbanbr.corp/paas-brasil/go-openshift-cli/utils"
 )
 
 //BackupStateFulSets lista dos statefulsets do openshift
@@ -19,7 +19,7 @@ func BackupStateFulSets(token string, url string) {
 		// Ler os dados dos statefulsets
 		lerDadosStateFulSets(token, statefulsets)
 	} else {
-		fmt.Println("[ListarStateFulSet] StateFulSet não encontrados")
+		fmt.Println("[BackupStateFulSets] StateFulSet não encontrados")
 	}
 }
 
@@ -53,7 +53,7 @@ func lerSalvarStateFulSet(token string, nomeProjeto string, nomeStateFulSet stri
 			recursoSalvo = 1
 		}
 	} else {
-		fmt.Printf("[lerStateFulSet] StateFulSet %s não encontrado no projeto %s ambiente %s\n\r", nomeStateFulSet, nomeProjeto, url)
+		fmt.Printf("[lerSalvarStateFulSet] StateFulSet %s não encontrado no projeto %s ambiente %s\n\r", nomeStateFulSet, nomeProjeto, url)
 	}
 	return recursoSalvo
 }

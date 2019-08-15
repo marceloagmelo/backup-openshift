@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/marceloagmelo/backup-openshift/variaveis"
-	"github.com/marceloagmelo/go-openshift-cli/model"
-	"github.com/marceloagmelo/go-openshift-cli/utils"
+	"gitlab.produbanbr.corp/paas-brasil/go-backup-openshift/variaveis"
+	"gitlab.produbanbr.corp/paas-brasil/go-openshift-cli/model"
+	"gitlab.produbanbr.corp/paas-brasil/go-openshift-cli/utils"
 )
 
 //BackupRoutes lista dos routes do openshift
@@ -19,7 +19,7 @@ func BackupRoutes(token string, url string) {
 		// Ler os dados dos routes
 		lerDadosRoutes(token, routes)
 	} else {
-		fmt.Println("[ListarRoutes] Routes não encontrados")
+		fmt.Println("[BackupRoutes] Routes não encontrados")
 	}
 }
 
@@ -53,7 +53,7 @@ func lerSalvarRoute(token string, nomeProjeto string, nomeRoute string) (recurso
 			recursoSalvo = 1
 		}
 	} else {
-		fmt.Printf("[lerRoute] route %s não encontrado no projeto %s ambiente %s\n\r", nomeRoute, nomeProjeto, url)
+		fmt.Printf("[lerSalvarRoute] route %s não encontrado no projeto %s ambiente %s\n\r", nomeRoute, nomeProjeto, url)
 	}
 	return recursoSalvo
 }

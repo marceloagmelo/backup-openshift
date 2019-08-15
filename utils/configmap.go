@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/marceloagmelo/backup-openshift/variaveis"
-	"github.com/marceloagmelo/go-openshift-cli/model"
-	"github.com/marceloagmelo/go-openshift-cli/utils"
+	"gitlab.produbanbr.corp/paas-brasil/go-backup-openshift/variaveis"
+	"gitlab.produbanbr.corp/paas-brasil/go-openshift-cli/model"
+	"gitlab.produbanbr.corp/paas-brasil/go-openshift-cli/utils"
 )
 
 //BackupConfigMaps lista dos configmaps do openshift
@@ -19,7 +19,7 @@ func BackupConfigMaps(token string, url string) {
 		// Ler os dados dos configmaps
 		lerDadosConfigMaps(token, configmaps)
 	} else {
-		fmt.Println("[ListarConfigMap] ConfigMap não encontrados")
+		fmt.Println("[BackupConfigMaps] ConfigMap não encontrados")
 	}
 }
 
@@ -53,7 +53,7 @@ func lerSalvarConfigMap(token string, nomeProjeto string, nomeConfigMap string) 
 			recursoSalvo = 1
 		}
 	} else {
-		fmt.Printf("[lerConfigMap] ConfigMap %s não encontrado no projeto %s ambiente %s\n\r", nomeConfigMap, nomeProjeto, url)
+		fmt.Printf("[lerSalvarConfigMap] ConfigMap %s não encontrado no projeto %s ambiente %s\n\r", nomeConfigMap, nomeProjeto, url)
 	}
 	return recursoSalvo
 }

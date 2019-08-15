@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/marceloagmelo/backup-openshift/variaveis"
-	"github.com/marceloagmelo/go-openshift-cli/model"
-	"github.com/marceloagmelo/go-openshift-cli/utils"
+	"gitlab.produbanbr.corp/paas-brasil/go-backup-openshift/variaveis"
+	"gitlab.produbanbr.corp/paas-brasil/go-openshift-cli/model"
+	"gitlab.produbanbr.corp/paas-brasil/go-openshift-cli/utils"
 )
 
 //BackupSecrets lista dos dcs do openshift
@@ -19,7 +19,7 @@ func BackupSecrets(token string, url string) {
 		// Ler os dados dos secrets
 		lerDadosSecrets(token, secrets)
 	} else {
-		fmt.Println("[ListarSecrets] Secrets não encontrados")
+		fmt.Println("[BackupSecrets] Secrets não encontrados")
 	}
 }
 
@@ -53,7 +53,7 @@ func lerSalvarSecret(token string, nomeProjeto string, nomeSecret string) (recur
 			recursoSalvo = 1
 		}
 	} else {
-		fmt.Printf("[lerSecret] secret %s não encontrada no projeto %s ambiente %s\n\r", nomeSecret, nomeProjeto, url)
+		fmt.Printf("[lerSalvarSecret] secret %s não encontrada no projeto %s ambiente %s\n\r", nomeSecret, nomeProjeto, url)
 	}
 	return recursoSalvo
 }

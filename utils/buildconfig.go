@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/marceloagmelo/backup-openshift/variaveis"
-	"github.com/marceloagmelo/go-openshift-cli/model"
-	"github.com/marceloagmelo/go-openshift-cli/utils"
+	"gitlab.produbanbr.corp/paas-brasil/go-backup-openshift/variaveis"
+	"gitlab.produbanbr.corp/paas-brasil/go-openshift-cli/model"
+	"gitlab.produbanbr.corp/paas-brasil/go-openshift-cli/utils"
 )
 
 //BackupBcs lista dos bcs do openshift
@@ -18,7 +18,7 @@ func BackupBcs(token string, url string) {
 		// Ler os dados dos bcs
 		lerDadosBcs(token, bcs)
 	} else {
-		fmt.Println("[main] Bcs não encontrados")
+		fmt.Println("[BackupBcs] Bcs não encontrados")
 	}
 }
 
@@ -52,7 +52,7 @@ func lerSalvarBc(token string, nomeProjeto string, nomeBc string) (recursoSalvo 
 			recursoSalvo = 1
 		}
 	} else {
-		fmt.Printf("[lerBc] Bc %s não encontrado no projeto %s ambiente %s", nomeBc, nomeProjeto, url)
+		fmt.Printf("[lerSalvarBc] Bc %s não encontrado no projeto %s ambiente %s", nomeBc, nomeProjeto, url)
 	}
 	return recursoSalvo
 }

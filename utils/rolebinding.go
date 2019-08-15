@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/marceloagmelo/backup-openshift/variaveis"
-	"github.com/marceloagmelo/go-openshift-cli/model"
-	"github.com/marceloagmelo/go-openshift-cli/utils"
+	"gitlab.produbanbr.corp/paas-brasil/go-backup-openshift/variaveis"
+	"gitlab.produbanbr.corp/paas-brasil/go-openshift-cli/model"
+	"gitlab.produbanbr.corp/paas-brasil/go-openshift-cli/utils"
 )
 
 //BackupRoleBindings lista dos rolebindings do openshift
@@ -19,7 +19,7 @@ func BackupRoleBindings(token string, url string) {
 		// Ler os dados dos rolebindings
 		lerDadosRoleBindings(token, rolebindings)
 	} else {
-		fmt.Println("[ListarRoleBinding] RoleBinding não encontrados")
+		fmt.Println("[BackupRoleBindings] RoleBinding não encontrados")
 	}
 }
 
@@ -53,7 +53,7 @@ func lerSalvarRoleBinding(token string, nomeProjeto string, nomeRoleBinding stri
 			recursoSalvo = 1
 		}
 	} else {
-		fmt.Printf("[lerRoleBinding] RoleBinding %s não encontrado no projeto %s ambiente %s\n\r", nomeRoleBinding, nomeProjeto, url)
+		fmt.Printf("[lerSalvarRoleBinding] RoleBinding %s não encontrado no projeto %s ambiente %s\n\r", nomeRoleBinding, nomeProjeto, url)
 	}
 	return recursoSalvo
 }

@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/marceloagmelo/backup-openshift/variaveis"
-	"github.com/marceloagmelo/go-openshift-cli/model"
-	"github.com/marceloagmelo/go-openshift-cli/utils"
+	"gitlab.produbanbr.corp/paas-brasil/go-backup-openshift/variaveis"
+	"gitlab.produbanbr.corp/paas-brasil/go-openshift-cli/model"
+	"gitlab.produbanbr.corp/paas-brasil/go-openshift-cli/utils"
 )
 
 //BackupServiceAccounts lista dos serviceaccounts do openshift
@@ -19,7 +19,7 @@ func BackupServiceAccounts(token string, url string) {
 		// Ler os dados dos serviceaccounts
 		lerDadosServiceAccounts(token, serviceaccounts)
 	} else {
-		fmt.Println("[ListarServiceAccount] ServiceAccount não encontrados")
+		fmt.Println("[BackupServiceAccounts] ServiceAccount não encontrados")
 	}
 }
 
@@ -53,7 +53,7 @@ func lerSalvarServiceAccount(token string, nomeProjeto string, nomeServiceAccoun
 			recursoSalvo = 1
 		}
 	} else {
-		fmt.Printf("[lerServiceAccount] ServiceAccount %s não encontrado no projeto %s ambiente %s\n\r", nomeServiceAccount, nomeProjeto, url)
+		fmt.Printf("[lerSalvarServiceAccount] ServiceAccount %s não encontrado no projeto %s ambiente %s\n\r", nomeServiceAccount, nomeProjeto, url)
 	}
 	return recursoSalvo
 }
