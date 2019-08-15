@@ -7,7 +7,7 @@ import (
 	"os"
 	"os/exec"
 
-	"gitlab.produbanbr.corp/paas-brasil/go-backup-openshift/variaveis"
+	"github.com/marceloagmelo/go-backup-openshift/variaveis"
 )
 
 //SalvarArquivoJSON salvar o arquivo

@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 
-	"gitlab.produbanbr.corp/paas-brasil/go-backup-openshift/variaveis"
-	"gitlab.produbanbr.corp/paas-brasil/go-openshift-cli/model"
-	"gitlab.produbanbr.corp/paas-brasil/go-openshift-cli/utils"
+	"github.com/marceloagmelo/go-backup-openshift/variaveis"
+	"github.com/marceloagmelo/go-openshift-cli/model"
+	"github.com/marceloagmelo/go-openshift-cli/utils"
 )
 
 //BackupRoleBindings lista dos rolebindings do openshift
