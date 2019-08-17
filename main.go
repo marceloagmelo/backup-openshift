@@ -3,11 +3,13 @@ package main
 import (
 	"fmt"
 	"os"
+	"runtime"
 	"strings"
 	"time"
 
 	"github.com/marceloagmelo/go-backup-openshift/utils"
 	"github.com/marceloagmelo/go-backup-openshift/variaveis"
+	gitutils "github.com/marceloagmelo/go-git-cli/utils"
 	openshiftutils "github.com/marceloagmelo/go-openshift-cli/utils"
 )
 
@@ -20,7 +22,7 @@ func main() {
 	url := os.Getenv("OPENSHIFT_URL")
 	openshiftUsername := os.Getenv("OPENSHIFT_USERNAME")
 	openshiftPassword := os.Getenv("OPENSHIFT_PASSWORD")
-	/*gitUsername := os.Getenv("GIT_USERNAME")
+	gitUsername := os.Getenv("GIT_USERNAME")
 	gitPassword := os.Getenv("GIT_PASSWORD")
 	gitRepositorio := os.Getenv("GIT_REPOSITORIO")
 	limparRecursos := os.Getenv("LIMPAR_RECURSOS")
@@ -28,7 +30,7 @@ func main() {
 		limparRecursos = strings.TrimRight(limparRecursos, "\r\n")
 	} else {
 		limparRecursos = strings.TrimRight(limparRecursos, "\n")
-	}*/
+	}
 
 	resultado, token := openshiftutils.GetToken(url, openshiftUsername, openshiftPassword)
 	if resultado > 0 {
@@ -45,16 +47,16 @@ func main() {
 		os.Mkdir(variaveis.DirBase, 0700)
 
 		// Clonar o respositório de backup
-		//gitutils.GitClone(gitRepositorio, variaveis.DirBase, gitUsername, gitPassword)
+		gitutils.GitClone(gitRepositorio, variaveis.DirBase, gitUsername, gitPassword)
 
 		// Verficiar se precisa limpar recursos antes
-		//if len(limparRecursos) > 0 {
-		//	limparRecursos = strings.ToUpper(limparRecursos)
-		//	if limparRecursos == "S" {
-		//		// Copiar a pasta .git para pasta temporária
-		//		utils.CopiarPastaGit(dataFormatada)
-		//	}
-		//}
+		if len(limparRecursos) > 0 {
+			limparRecursos = strings.ToUpper(limparRecursos)
+			if limparRecursos == "S" {
+				// Copiar a pasta .git para pasta temporária
+				utils.CopiarPastaGit(dataFormatada)
+			}
+		}
 
 		// Backup dos Projetos
 		utils.BackupProjetos(token, url)
@@ -111,13 +113,13 @@ func main() {
 		utils.BackupResourceQuotas(token, url)
 
 		// Commit e push no git
-		//gitutils.GitCommitPush(variaveis.DirBase, "Backup "+dataFormatada, gitUsername, gitPassword)
+		gitutils.GitCommitPush(variaveis.DirBase, "Backup "+dataFormatada, gitUsername, gitPassword)
 		// Criar branch no git
-		//gitutils.GitCriarBranch(variaveis.DirBase, dataFormatada, gitUsername, gitPassword)
+		gitutils.GitCriarBranch(variaveis.DirBase, dataFormatada, gitUsername, gitPassword)
 
 		// Remover o diretório base
 		fmt.Printf("removendo diretorio %s\n\r", variaveis.DirBase)
-		//os.RemoveAll(variaveis.DirBase)
+		os.RemoveAll(variaveis.DirBase)
 	}
 
 	variaveis.DataHoraAtual = time.Now()
