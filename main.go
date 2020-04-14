@@ -19,6 +19,7 @@ func init() {
 }
 
 func main() {
+	gitBranch := "master"
 	url := os.Getenv("OPENSHIFT_URL")
 	openshiftUsername := os.Getenv("OPENSHIFT_USERNAME")
 	openshiftPassword := os.Getenv("OPENSHIFT_PASSWORD")
@@ -47,7 +48,7 @@ func main() {
 		os.Mkdir(variaveis.DirBase, 0700)
 
 		// Clonar o respositório de backup
-		gitutils.GitClone(gitRepositorio, variaveis.DirBase, gitUsername, gitPassword)
+		gitutils.GitClone(gitRepositorio, variaveis.DirBase, gitUsername, gitPassword, gitBranch)
 
 		// Verficiar se precisa limpar recursos antes
 		if len(limparRecursos) > 0 {
