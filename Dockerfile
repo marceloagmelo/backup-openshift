@@ -1,4 +1,4 @@
-FROM ocpsatpvlbr01.dcbr01.corp:5000/santander-ocp3-rhel7
+FROM centos:7
 
 USER root
 
@@ -19,19 +19,6 @@ RUN groupadd --gid $GID golang && useradd --uid $UID -m -g golang golang && \
     chmod 755 $APP_HOME/go-backup-openshift && \
     chown -R golang:golang $APP_HOME && \
     chown -R golang:golang $IMAGE_SCRIPTS_HOME
-
-#######################################################################
-##### We have to expose image metada as label and ENV
-#######################################################################
-LABEL br.com.santander.imageowner="Corporate Techonology" \
-      br.com.santander.description="Golang 1.10.2 runtime for node microservices - backup openshift" \
-      br.com.santander.components="Golang Server" \
-      br.com.santander.image="registry.cmpn.paas.gsnetcloud.corp/santander/go-backup-openshift:2.0.3.RELEASE"
-
-ENV br.com.santander.imageowner="Corporate Techonology"
-ENV br.com.santander.description="Golang 1.10.2 runtime for node microservices - backup openshift"
-ENV br.com.santander.components="Golang Server"
-ENV br.com.santander.image="registry.cmpn.paas.gsnetcloud.corp/santander/go-backup-openshift:2.0.3.RELEASE"
 
 EXPOSE 5000 8000
 
