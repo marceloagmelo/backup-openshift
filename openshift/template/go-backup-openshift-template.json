@@ -6,7 +6,9 @@
         "annotations": {
             "description": "Template para deploy Backup Openshift",
             "openshift.io/display-name": "Backup Openshift",
-            "tags": "golang,openshift,git"
+            "openshift.io/documentation-url": "https://github.com/marceloagmelo/go-backup-openshift.git",
+            "tags": "runtime,instant-app,golang.openshift,gitlab",
+            "version": "1.0"
         }
     },
     "objects": [
@@ -263,7 +265,7 @@
             "name": "GITLAB_PROJECT_ID",
             "displayName": "ID do projeto no git",
             "description": "ID do projeto no git",
-            "value": "11027",
+            "value": "18811050",
             "required": true
         },
         {
