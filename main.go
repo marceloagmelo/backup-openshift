@@ -5,50 +5,57 @@ import (
 	"os"
 	"runtime"
 	"strings"
-	"time"
 
+	"github.com/marceloagmelo/go-backup-openshift/api"
+	"github.com/marceloagmelo/go-backup-openshift/logger"
+	"github.com/marceloagmelo/go-backup-openshift/model"
 	"github.com/marceloagmelo/go-backup-openshift/utils"
 	"github.com/marceloagmelo/go-backup-openshift/variaveis"
-	gitutils "github.com/marceloagmelo/go-git-cli/utils"
-	openshiftutils "github.com/marceloagmelo/go-openshift-cli/utils"
 )
 
+var err error
+var gitRepositorio = os.Getenv("GIT_REPOSITORIO")
+var gitUsername = os.Getenv("GIT_USERNAME")
+var gitPassword = os.Getenv("GIT_PASSWORD")
+var limparRecursos = os.Getenv("LIMPAR_RECURSOS")
+var execucaoAtivada = os.Getenv("EXECUCAO_ATIVADA")
+
 func init() {
-	variaveis.DataHoraAtual = time.Now()
-	fmt.Println("Inicio -->> ", variaveis.DataHoraAtual.Format(variaveis.DataFormat))
+	logger.Info.Println("=== Início ===")
+
+	if execucaoAtivada == "S" {
+		variaveis.OpenshiftToken, err = utils.GetToken()
+		if err != nil {
+			mensagem := fmt.Sprintf("%s: %s", "Erro ao recuperar o token", err.Error())
+			logger.Erro.Fatalln(mensagem)
+			return
+		}
+
+		if runtime.GOOS == "windows" {
+			limparRecursos = strings.TrimRight(limparRecursos, "\r\n")
+		} else {
+			limparRecursos = strings.TrimRight(limparRecursos, "\n")
+		}
+	}
 }
 
 func main() {
-	gitBranch := "master"
-	url := os.Getenv("OPENSHIFT_URL")
-	openshiftUsername := os.Getenv("OPENSHIFT_USERNAME")
-	openshiftPassword := os.Getenv("OPENSHIFT_PASSWORD")
-	gitUsername := os.Getenv("GIT_USERNAME")
-	gitPassword := os.Getenv("GIT_PASSWORD")
-	gitRepositorio := os.Getenv("GIT_REPOSITORIO")
-	limparRecursos := os.Getenv("LIMPAR_RECURSOS")
-	if runtime.GOOS == "windows" {
-		limparRecursos = strings.TrimRight(limparRecursos, "\r\n")
-	} else {
-		limparRecursos = strings.TrimRight(limparRecursos, "\n")
-	}
-
-	resultado, token := openshiftutils.GetToken(url, openshiftUsername, openshiftPassword)
-	if resultado > 0 {
-		fmt.Println("[main] Token não recuperado.")
-	}
-
-	if len(strings.TrimSpace(token)) > 0 {
-		// Atribuir valores as variáveis
+	if execucaoAtivada == "S" {
 		dataFormatada := variaveis.DataHoraAtual.Format(variaveis.DataFormatArquivo)
 		variaveis.DirBase = "/tmp/backup-openshift-" + dataFormatada
 
 		// Criar diretórios
-		fmt.Printf("criando diretorio %s\n\r", variaveis.DirBase)
+		mensagem := fmt.Sprintf("Criando diretorio %s", variaveis.DirBase)
+		logger.Info.Println(mensagem)
+
 		os.Mkdir(variaveis.DirBase, 0700)
 
 		// Clonar o respositório de backup
-		gitutils.GitClone(gitRepositorio, variaveis.DirBase, gitUsername, gitPassword, gitBranch)
+		err := api.GitClone(gitRepositorio, variaveis.DirBase, gitUsername, gitPassword, variaveis.GitlabBranch)
+		if err != nil {
+			logger.Erro.Fatalln(err)
+			return
+		}
 
 		// Verficiar se precisa limpar recursos antes
 		if len(limparRecursos) > 0 {
@@ -59,70 +66,46 @@ func main() {
 			}
 		}
 
-		// Backup dos Projetos
-		utils.BackupProjetos(token, url)
+		// Recuperar recursos válidos
+		recursosValidos, err := model.GetRecursosValidos(variaveis.RecursosFile)
+		if err != nil {
+			logger.Erro.Fatalln(err)
+			return
+		}
 
-		// Backup dos Templates
-		utils.BackupTemplates(token, url)
+		mensagem = fmt.Sprintf("Executando o backup dos recursos")
+		logger.Info.Println(mensagem)
 
-		// Backup dos RoleBindings
-		utils.BackupRoleBindings(token, url)
+		err = utils.ExecutarBackup(recursosValidos)
+		if err != nil {
+			mensagem := fmt.Sprintf("%s: %s", "Erro ao executar o backup dos recursos", err)
+			logger.Erro.Println(mensagem)
+		}
 
-		// Backup dos Roles
-		utils.BackupRoles(token, url)
-
-		// Backup dos Services
-		utils.BackupServices(token, url)
-
-		// Backup dos ServiceAccounts
-		utils.BackupServiceAccounts(token, url)
-
-		// Backup dos Routes
-		utils.BackupRoutes(token, url)
-
-		// Backup dos Secrets
-		utils.BackupSecrets(token, url)
-
-		// Backup dos Pvcs
-		utils.BackupPvcs(token, url)
-
-		// Backup dos ConfigMaps
-		utils.BackupConfigMaps(token, url)
-
-		// Recuperar as ImagesStreams
-		utils.BackupImageStreams(token, url)
-
-		// Backup dos Bcs
-		utils.BackupBcs(token, url)
-
-		// Backup dos Dcs
-		utils.BackupDcs(token, url)
-
-		// Backup dos StateFulSets
-		utils.BackupStateFulSets(token, url)
-
-		// Backup dos DaemonSets
-		utils.BackupDaemonSets(token, url)
-
-		// Backup dos ReplicaSets
-		utils.BackupReplicaSets(token, url)
-
-		// Backup dos LimitRanges
-		utils.BackupLimitRanges(token, url)
-
-		// Backup dos ResourceQuotas
-		utils.BackupResourceQuotas(token, url)
+		dataFormatada = variaveis.DataHoraAtual.Format(variaveis.DataFormatArquivo)
 
 		// Commit e push no git
-		gitutils.GitCommitPush(variaveis.DirBase, "Backup "+dataFormatada, gitUsername, gitPassword)
-		// Criar branch no git
-		gitutils.GitCriarBranch(variaveis.DirBase, dataFormatada, gitUsername, gitPassword)
+		err = api.GitCommitPush(variaveis.DirBase, "Backup "+dataFormatada, gitUsername, gitPassword)
+		if err != nil {
+			mensagem := fmt.Sprintf("%s: %s", "Erro ao executar o commit no git", err)
+			logger.Erro.Fatalln(mensagem)
+			return
+		}
+
+		// Criar a tag
+		mensagem = fmt.Sprintf("Criando a tag %s", dataFormatada)
+		logger.Info.Println(mensagem)
+		_, _, err = api.GitCriarTag(dataFormatada)
+		if err != nil {
+			mensagem := fmt.Sprintf("%s: %s", "Erro ao executar a criação da tag no gitlab", err)
+			logger.Erro.Println(mensagem)
+		}
 
 		// Remover o diretório base
-		fmt.Printf("removendo diretorio %s\n\r", variaveis.DirBase)
+		mensagem = fmt.Sprintf("Removendo diretorio %s", variaveis.DirBase)
+		logger.Info.Println(mensagem)
 		os.RemoveAll(variaveis.DirBase)
 	}
 
-	variaveis.DataHoraAtual = time.Now()
-	fmt.Println("Fim -->> ", variaveis.DataHoraAtual.Format(variaveis.DataFormat))
+	logger.Info.Println("=== Fim ===")
 }

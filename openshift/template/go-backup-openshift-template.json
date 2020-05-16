@@ -1,0 +1,308 @@
+{
+    "kind": "Template",
+    "apiVersion": "v1",
+    "metadata": {
+        "name": "backup-openshift-template",
+        "annotations": {
+            "description": "Template para deploy Backup Openshift",
+            "openshift.io/display-name": "Backup Openshift",
+            "tags": "golang,openshift,git"
+        }
+    },
+    "objects": [
+        {
+            "apiVersion": "v1",
+            "data": {
+                "recursos.json": "{\r\n  \"recursos\": [\r\n    {\r\n      \"nome\": \"buildconfig\"\r\n    },\r\n    {\r\n      \"nome\": \"configmap\"\r\n    },\r\n    {\r\n      \"nome\": \"cronjob\"\r\n    },\r\n    {\r\n      \"nome\": \"daemonset\"\r\n    },\r\n    {\r\n      \"nome\": \"deployment\"\r\n    },\r\n    {\r\n      \"nome\": \"deploymentconfig\"\r\n    },\r\n    {\r\n      \"nome\": \"imagestream\"\r\n    },\r\n    {\r\n      \"nome\": \"replicaSet\"\r\n    },\r\n    {\r\n      \"nome\": \"role\"\r\n    },\r\n    {\r\n      \"nome\": \"rolebinding\"\r\n    },\r\n    {\r\n      \"nome\": \"route\"\r\n    },\r\n    {\r\n      \"nome\": \"secret\"\r\n    },\r\n    {\r\n      \"nome\": \"service\"\r\n    },\r\n    {\r\n      \"nome\": \"serviceaccount\"\r\n    },\r\n    {\r\n      \"nome\": \"statefulset\"\r\n    },\r\n    {\r\n      \"nome\": \"template\"\r\n    }\r\n  ]\r\n}\r\n"
+            },
+            "kind": "ConfigMap",
+            "metadata": {
+                "name": "${APP_NAME}-recursos-json"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Secret",
+            "metadata": {
+                "annotations": {
+                    "template.openshift.io/expose-openshift_username": "{.data['openshift-username']}",
+                    "template.openshift.io/expose-openshift_password": "{.data['openshift-password']}",
+                    "template.openshift.io/expose-git_username": "{.data['git-username']}",
+                    "template.openshift.io/expose-git_password": "{.data['git-password']}",
+                    "template.openshift.io/expose-token": "{.data['git-token']}"
+                },
+                "name": "secret-${APP_NAME}"
+            },
+            "stringData": {
+                "openshift-username": "${OPENSHIFT_USERNAME}",
+                "openshift-password": "${OPENSHIFT_PASSWORD}",
+                "git-username": "${GIT_USERNAME}",
+                "git-password": "${GIT_PASSWORD}",
+                "git-token": "${GITLAB_PRIVATE_KEY}"
+            }
+        },
+        {
+            "kind": "CronJob",
+            "apiVersion": "batch/v1beta1",
+            "metadata": {
+                "name": "${APP_NAME}"
+            },
+            "spec": {
+                "schedule": "${SCHEDULE}",
+                "concurrencyPolicy": "Forbid",
+                "suspend": false,
+                "jobTemplate": {
+                    "spec": {
+                        "template": {
+                            "metadata": {
+                                "labels": {
+                                    "parent": "${APP_NAME}"
+                                }
+                            },
+                            "spec": {
+                                "volumes": [
+                                    {
+                                        "configMap": {
+                                            "items": [
+                                                {
+                                                    "key": "recursos.json",
+                                                    "path": "recursos.json"
+                                                }
+                                            ],
+                                            "name": "${APP_NAME}-recursos-json"
+                                        },
+                                        "name": "${APP_NAME}-recursos-json"
+                                    }
+                                ],
+                                "containers": [
+                                    {
+                                        "name": "${APP_NAME}",
+                                        "image": "marceoagmelo/go-backup-openshift:latest",
+                                        "env": [
+                                            {
+                                                "name": "TZ",
+                                                "value": "America/Sao_Paulo"
+                                            },
+                                            {
+                                                "name": "PROJECT_NAME",
+                                                "valueFrom": {
+                                                    "fieldRef": {
+                                                        "apiVersion": "v1",
+                                                        "fieldPath": "metadata.namespace"
+                                                    }
+                                                }
+                                            },
+                                            {
+                                                "name": "OPENSHIFT_URL",
+                                                "value": "${OPENSHIFT_URL}"
+                                            },
+                                            {
+                                                "name": "OPENSHIFT_USERNAME",
+                                                "value": "${OPENSHIFT_USERNAME}"
+                                            },
+                                            {
+                                                "name": "OPENSHIFT_PASSWORD",
+                                                "valueFrom": {
+                                                    "secretKeyRef": {
+                                                        "key": "openshift-password",
+                                                        "name": "secret-${APP_NAME}"
+                                                    }
+                                                }
+                                            },
+                                            {
+                                                "name": "GIT_URL",
+                                                "value": "${GIT_URL}"
+                                            },
+                                            {
+                                                "name": "GIT_REPOSITORIO",
+                                                "value": "${GIT_REPOSITORIO}"
+                                            },
+                                            {
+                                                "name": "GIT_BRANCH",
+                                                "value": "${GIT_BRANCH}"
+                                            },
+                                            {
+                                                "name": "GIT_USERNAME",
+                                                "value": "${GIT_USERNAME}"
+                                            },
+                                            {
+                                                "name": "GIT_PASSWORD",
+                                                "valueFrom": {
+                                                    "secretKeyRef": {
+                                                        "key": "git-password",
+                                                        "name": "secret-${APP_NAME}"
+                                                    }
+                                                }
+                                            },
+                                            {
+                                                "name": "GITLAB_PRIVATE_KEY",
+                                                "valueFrom": {
+                                                    "secretKeyRef": {
+                                                        "key": "git-token",
+                                                        "name": "secret-${APP_NAME}"
+                                                    }
+                                                }
+                                            },
+                                            {
+                                                "name": "GITLAB_PROJECT_ID",
+                                                "value": "${GITLAB_PROJECT_ID}"
+                                            },
+                                            {
+                                                "name": "RECURSOS_FILE",
+                                                "value": "${RECURSOS_FILE}"
+                                            },
+                                            {
+                                                "name": "LIMPAR_RECURSOS",
+                                                "value": "${LIMPAR_RECURSOS}"
+                                            },
+                                            {
+                                                "name": "EXECUCAO_ATIVADA",
+                                                "value": "${EXECUCAO_ATIVADA}"
+                                            },
+                                            {
+                                                "name": "LOG_DEBUG",
+                                                "value": "${LOG_DEBUG}"
+                                            }
+                                        ],
+                                        "resources": {},
+                                        "terminationMessagePath": "/dev/termination-log",
+                                        "terminationMessagePolicy": "File",
+                                        "imagePullPolicy": "Always",
+                                        "volumeMounts": [
+                                            {
+                                                "mountPath": "${RECURSOS_FILE}",
+                                                "name": "${APP_NAME}-recursos-json",
+                                                "subPath": "recursos.json"
+                                            }
+                                        ],
+                                        "securityContext": {}
+                                    }
+                                ],
+                                "restartPolicy": "OnFailure",
+                                "terminationGracePeriodSeconds": 30,
+                                "dnsPolicy": "ClusterFirst",
+                                "securityContext": {},
+                                "schedulerName": "default-scheduler"
+                            }
+                        }
+                    }
+                },
+                "successfulJobsHistoryLimit": 3,
+                "failedJobsHistoryLimit": 1
+            },
+            "status": {}
+        }
+    ],
+    "parameters": [
+        {
+            "name": "APP_NAME",
+            "displayName": "Application Name",
+            "description": "Application name",
+            "required": true,
+            "value": "backup-openshift"
+        },
+        {
+            "name": "OPENSHIFT_URL",
+            "displayName": "Openshift URL",
+            "description": "Openshift URL",
+            "value": "https://console.openshift.lab:8443",
+            "required": true
+        },
+        {
+            "name": "OPENSHIFT_USERNAME",
+            "displayName": "Openshift Username",
+            "description": "Openshift Username",
+            "required": true
+        },
+        {
+            "name": "OPENSHIFT_PASSWORD",
+            "displayName": "Openshift Password",
+            "description": "Openshift Password",
+            "required": true
+        },
+        {
+            "name": "GIT_URL",
+            "displayName": "Git URL",
+            "description": "Git URL",
+            "value": "https://gitlab.com",
+            "required": true
+        },
+        {
+            "name": "GIT_REPOSITORIO",
+            "displayName": "Git repositório",
+            "description": "Git repositório",
+            "value": "https://gitlab.com/marceloagmelo/openshift-backup.git",
+            "required": true
+        },
+        {
+            "name": "GIT_BRANCH",
+            "displayName": "Git Branch",
+            "description": "Git Branch",
+            "value": "master",
+            "required": true
+        },
+        {
+            "name": "GIT_USERNAME",
+            "displayName": "Git Username",
+            "description": "Git Username",
+            "required": true
+        },
+        {
+            "name": "GIT_PASSWORD",
+            "displayName": "Git Password",
+            "description": "Git Password",
+            "required": true
+        },
+        {
+            "name": "GITLAB_PRIVATE_KEY",
+            "displayName": "Git Token",
+            "description": "Git Token",
+            "required": true
+        },
+        {
+            "name": "GITLAB_PROJECT_ID",
+            "displayName": "ID do projeto no git",
+            "description": "ID do projeto no git",
+            "value": "11027",
+            "required": true
+        },
+        {
+            "name": "RECURSOS_FILE",
+            "displayName": "Arquivo JSON de recursos válidos",
+            "description": "Arquivo JSON de recursos válidos",
+            "value": "/go/bin/recursos.json",
+            "required": true
+        },
+        {
+            "name": "LIMPAR_RECURSOS",
+            "displayName": "Limpar os recursos antes de atualizar",
+            "description": "Limpar os recursos antes de atualizar",
+            "value": "N",
+            "required": true
+        },
+        {
+            "name": "EXECUCAO_ATIVADA",
+            "displayName": "Execução ativada",
+            "description": "Execução ativada",
+            "value": "S",
+            "required": true
+        },
+        {
+            "name": "LOG_DEBUG",
+            "displayName": "Debug do log dos recursos",
+            "description": "Debug do log dos recursos",
+            "value": "N",
+            "required": true
+        },
+        {
+            "name": "SCHEDULE",
+            "displayName": "Schedule",
+            "description": "Schedule",
+            "value": "0 2 * * *",
+            "required": true
+        }
+   ],
+    "labels": {
+        "template": "backup-openshift-template"
+    }
+}
