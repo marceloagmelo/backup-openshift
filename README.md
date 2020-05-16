@@ -1,6 +1,6 @@
 # Backup dos Recursos do Openshift
 
-Aplicação que realiza o backup de recursos do **Openshift**, este recursos serão armazenados no repositório do [GITLAB DEV/PRE](https://gitlab.com/marceloagmelo/openshift-backup.git) **ID 11027** serão feitos o backup dos seguintes recursos:
+Aplicação que realiza o backup de recursos do **Openshift**, este recursos serão armazenados no repositório do [GITLAB DEV/PRE](https://gitlab.com/marceloagmelo/openshift-backup.git) **ID 18811050** serão feitos o backup dos seguintes recursos:
 
 - buildconfig
 - configmap
